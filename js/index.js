@@ -1,9 +1,3 @@
-// function initLazyVideo() {
-//   var bLazy = new Blazy({});
-// }
-
-// window.addEventListener("DOMContentLoaded", initLazyVideo);
-
 document.addEventListener("DOMContentLoaded", function () {
   var lazyVideos = [].slice.call(
     document.querySelectorAll("video.wp-video-lazy")

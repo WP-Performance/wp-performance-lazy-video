@@ -1,6 +1,5 @@
 # Wordpress plugin for lazy load core/video gutenberg block
 
+This plugin change render on core/video block gutenberg.
 
-Simple plugin for use blazy js with core/video block.
-
-it change src attribute to data-src, add class "b-lazy" and init blazy js.
+It change src to data-src for lazy load the video.
