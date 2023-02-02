@@ -31,7 +31,7 @@ function parse($string)
 
     $videos = $xpath->query("//*/video");
     if (!$videos) {
-        return $string;
+        return ['content' => $string, 'src' => null];
     }
 
     foreach ($videos as $key => $node) {
@@ -43,11 +43,11 @@ function parse($string)
             $node->removeAttribute('src');
             // add class b-lazy
             $class = $node->getAttribute('class');
-            $node->setAttribute('class', $class . ' b-lazy');
+            $node->setAttribute('class', $class . ' wp-video-lazy');
         }
     }
 
-    return $document->saveHTML();
+    return ['content' => $document->saveHTML(), 'src' => $src];
 }
 
 /** find core/video block */
@@ -56,7 +56,14 @@ add_filter(
     function ($block_content, $block) {
         if ($block['blockName'] === 'core/video') {
             $content = $block['innerHTML'];
-            return namespace\parse($content);
+            $parsing = namespace\parse($content);
+            if ($parsing['src'] !== null) {
+                add_action('wp_head', function () use ($parsing) {
+                    echo '<link rel="preload" as="video" href="' . $parsing['src'] . '">';
+                });
+            }
+
+            return $parsing['content'];
         }
         return $block_content;
     },
@@ -70,12 +77,6 @@ add_filter(
 function frontend_scripts()
 {
     if (has_block('core/video')) {
-        wp_enqueue_script(
-            'wp-performance-lazy-video-blazy',
-            plugins_url('js/blazy.min.js', __FILE__),
-            [],
-            filemtime(plugin_dir_path(__FILE__) . 'js/blazy.min.js')
-        );
         wp_enqueue_script(
             'wp-performance-lazy-video-front',
             plugins_url('js/index.js', __FILE__),
