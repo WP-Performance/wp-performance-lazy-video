@@ -37,11 +37,15 @@ function parse($string)
     foreach ($videos as $key => $node) {
         $parentClasses = $node->parentNode->getAttribute('class');
         if (str_contains($parentClasses, 'wp-block-video')) {
+            // use always metadata
+            $node->setAttribute('preload', 'metadata');
+
             // replace src by data-src
             $src = $node->getAttribute('src');
             $node->setAttribute('data-src', $src);
             $node->removeAttribute('src');
-            // add class b-lazy
+
+            // add class wp-video-lazy
             $class = $node->getAttribute('class');
             $node->setAttribute('class', $class . ' wp-video-lazy');
         }
@@ -57,12 +61,13 @@ add_filter(
         if ($block['blockName'] === 'core/video') {
             $content = $block['innerHTML'];
             $parsing = namespace\parse($content);
-            if ($parsing['src'] !== null) {
-                add_action('wp_head', function () use ($parsing) {
-                    echo '<link rel="preload" as="video" href="' . $parsing['src'] . '">';
-                });
-            }
 
+            // test but isn't good idea to preload
+            // if ($parsing['src'] !== null) {
+            //     add_action('wp_head', function () use ($parsing) {
+            //         echo '<link rel="preload" as="video" href="' . $parsing['src'] . '">';
+            //     });
+            // }
             return $parsing['content'];
         }
         return $block_content;
